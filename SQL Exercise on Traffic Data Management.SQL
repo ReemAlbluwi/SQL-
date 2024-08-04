@@ -44,17 +44,33 @@ WHERE traffic_volume > 1000;
 
 
 
--- 4 : Update the traffic volume to 1500 for records where the road is 'Highway A1' and the time is between '08:00' and '10:00' on '2024-07-11'
+--4 : Update the traffic volume to 1500 vehicles for all records where the road is "Highway A1" and
+---   the time is between "0800" and "1000" on "2024-07-11".
+
 UPDATE traffic_data
 SET traffic_volume = 1500
 WHERE road = 'Highway A1'
   AND traffic_date = TO_DATE('2024-07-11', 'YYYY-MM-DD')
   AND traffic_time BETWEEN TO_TIMESTAMP('2024-07-11 08:00:00', 'YYYY-MM-DD HH24:MI:SS')
-                      AND TO_TIMESTAMP('2024-07-11 10:00:00', 'YYYY-MM-DD HH24:MI:SS');
+                       AND TO_TIMESTAMP('2024-07-11 10:00:00', 'YYYY-MM-DD HH24:MI:SS');
+
+--5 : Update the vehicle type breakdown to '{"car": 850, "truck": 320, "motorcycle": 130}' for therecord with the highest traffic volume.
+
+UPDATE traffic_data
+SET vehicle_type_breakdown = '{"car": 850, "truck": 320, "motorcycle": 130}'
+WHERE (road, traffic_date, traffic_time) IN (
+    SELECT road, traffic_date, traffic_time
+    FROM traffic_data
+    WHERE traffic_volume = (
+        SELECT MAX(traffic_volume)
+        FROM traffic_data
+    )
+);
 
 
 
--- 5 : -- Delete all records where the weather condition is "Rainy"
+
+-- 6 : -- Delete all records where the weather condition is "Rainy"
 DELETE FROM traffic_data
 WHERE weather_condition = 'Rainy';
 
